@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/internal_api.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>internal_api.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../casbin/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../casbin/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -464,7 +464,7 @@
 <span id="461">461</span>
 <span id="462">462</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">core_api</span>::<span class="ident">IEnforcer</span>, <span class="prelude-ty">Result</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">core_api::IEnforcer</span>, <span class="prelude-ty">Result</span>};
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(
     <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;watcher&quot;</span>,
@@ -472,12 +472,12 @@
     <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;logging&quot;</span>,
     <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;incremental&quot;</span>
 ))]</span>
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">emitter</span>::<span class="ident">EventData</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::emitter::EventData</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;watcher&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cached&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;logging&quot;</span>,))]</span>
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">emitter</span>::<span class="ident">Event</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::emitter::Event</span>;
 
-<span class="kw">use</span> <span class="ident">async_trait</span>::<span class="ident">async_trait</span>;
+<span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 
 <span class="attribute">#[<span class="ident">async_trait</span>]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">InternalApi</span>: <span class="ident">IEnforcer</span> {
@@ -555,7 +555,7 @@
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;watcher&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;logging&quot;</span>))]</span>
         {
             <span class="kw">let</span> <span class="ident">event_data</span> <span class="op">=</span>
-                <span class="ident">EventData</span>::<span class="ident">AddPolicy</span>(<span class="ident">sec</span>.<span class="ident">to_owned</span>(), <span class="ident">ptype</span>.<span class="ident">to_owned</span>(), {
+                <span class="ident">EventData::AddPolicy</span>(<span class="ident">sec</span>.<span class="ident">to_owned</span>(), <span class="ident">ptype</span>.<span class="ident">to_owned</span>(), {
                     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;incremental&quot;</span>)]</span>
                     {
                         <span class="ident">rule</span>.<span class="ident">clone</span>()
@@ -568,20 +568,20 @@
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;watcher&quot;</span>)]</span>
             {
                 <span class="kw">if</span> <span class="ident">rule_added</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">has_auto_notify_watcher_enabled</span>() {
-                    <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event</span>::<span class="ident">PolicyChange</span>, <span class="ident">event_data</span>);
+                    <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event::PolicyChange</span>, <span class="ident">event_data</span>);
                 }
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;watcher&quot;</span>))]</span>
             {
                 <span class="kw">if</span> <span class="ident">rule_added</span> {
-                    <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event</span>::<span class="ident">PolicyChange</span>, <span class="ident">event_data</span>);
+                    <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event::PolicyChange</span>, <span class="ident">event_data</span>);
                 }
             }
         }
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cached&quot;</span>)]</span>
         {
             <span class="kw">if</span> <span class="ident">rule_added</span> {
-                <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event</span>::<span class="ident">ClearCache</span>, <span class="ident">EventData</span>::<span class="ident">ClearCache</span>);
+                <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event::ClearCache</span>, <span class="ident">EventData::ClearCache</span>);
             }
         }
         <span class="kw">if</span> <span class="ident">sec</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;g&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">has_auto_build_role_links_enabled</span>() {
@@ -593,7 +593,7 @@
         }
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;incremental&quot;</span>)]</span>
         {
-            <span class="self">self</span>.<span class="ident">build_incremental_role_links</span>(<span class="ident">EventData</span>::<span class="ident">AddPolicy</span>(
+            <span class="self">self</span>.<span class="ident">build_incremental_role_links</span>(<span class="ident">EventData::AddPolicy</span>(
                 <span class="ident">sec</span>.<span class="ident">to_owned</span>(),
                 <span class="ident">ptype</span>.<span class="ident">to_owned</span>(),
                 <span class="ident">rule</span>,
@@ -639,7 +639,7 @@
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;watcher&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;logging&quot;</span>))]</span>
         {
             <span class="kw">let</span> <span class="ident">event_data</span> <span class="op">=</span>
-                <span class="ident">EventData</span>::<span class="ident">AddPolicies</span>(<span class="ident">sec</span>.<span class="ident">to_owned</span>(), <span class="ident">ptype</span>.<span class="ident">to_owned</span>(), {
+                <span class="ident">EventData::AddPolicies</span>(<span class="ident">sec</span>.<span class="ident">to_owned</span>(), <span class="ident">ptype</span>.<span class="ident">to_owned</span>(), {
                     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;incremental&quot;</span>)]</span>
                     {
                         <span class="ident">rules</span>.<span class="ident">clone</span>()
@@ -652,20 +652,20 @@
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;watcher&quot;</span>)]</span>
             {
                 <span class="kw">if</span> <span class="ident">rules_added</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">has_auto_notify_watcher_enabled</span>() {
-                    <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event</span>::<span class="ident">PolicyChange</span>, <span class="ident">event_data</span>);
+                    <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event::PolicyChange</span>, <span class="ident">event_data</span>);
                 }
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;watcher&quot;</span>))]</span>
             {
                 <span class="kw">if</span> <span class="ident">rules_added</span> {
-                    <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event</span>::<span class="ident">PolicyChange</span>, <span class="ident">event_data</span>);
+                    <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event::PolicyChange</span>, <span class="ident">event_data</span>);
                 }
             }
         }
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cached&quot;</span>)]</span>
         {
             <span class="kw">if</span> <span class="ident">rules_added</span> {
-                <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event</span>::<span class="ident">ClearCache</span>, <span class="ident">EventData</span>::<span class="ident">ClearCache</span>);
+                <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event::ClearCache</span>, <span class="ident">EventData::ClearCache</span>);
             }
         }
         <span class="kw">if</span> <span class="ident">sec</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;g&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">has_auto_build_role_links_enabled</span>() {
@@ -677,7 +677,7 @@
         }
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;incremental&quot;</span>)]</span>
         {
-            <span class="self">self</span>.<span class="ident">build_incremental_role_links</span>(<span class="ident">EventData</span>::<span class="ident">AddPolicies</span>(
+            <span class="self">self</span>.<span class="ident">build_incremental_role_links</span>(<span class="ident">EventData::AddPolicies</span>(
                 <span class="ident">sec</span>.<span class="ident">to_owned</span>(),
                 <span class="ident">ptype</span>.<span class="ident">to_owned</span>(),
                 <span class="ident">rules</span>,
@@ -723,7 +723,7 @@
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;watcher&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;logging&quot;</span>))]</span>
         {
             <span class="kw">let</span> <span class="ident">event_data</span> <span class="op">=</span>
-                <span class="ident">EventData</span>::<span class="ident">RemovePolicy</span>(<span class="ident">sec</span>.<span class="ident">to_owned</span>(), <span class="ident">ptype</span>.<span class="ident">to_owned</span>(), {
+                <span class="ident">EventData::RemovePolicy</span>(<span class="ident">sec</span>.<span class="ident">to_owned</span>(), <span class="ident">ptype</span>.<span class="ident">to_owned</span>(), {
                     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;incremental&quot;</span>)]</span>
                     {
                         <span class="ident">rule</span>.<span class="ident">clone</span>()
@@ -736,20 +736,20 @@
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;watcher&quot;</span>)]</span>
             {
                 <span class="kw">if</span> <span class="ident">rule_removed</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">has_auto_notify_watcher_enabled</span>() {
-                    <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event</span>::<span class="ident">PolicyChange</span>, <span class="ident">event_data</span>);
+                    <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event::PolicyChange</span>, <span class="ident">event_data</span>);
                 }
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;watcher&quot;</span>))]</span>
             {
                 <span class="kw">if</span> <span class="ident">rule_removed</span> {
-                    <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event</span>::<span class="ident">PolicyChange</span>, <span class="ident">event_data</span>);
+                    <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event::PolicyChange</span>, <span class="ident">event_data</span>);
                 }
             }
         }
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cached&quot;</span>)]</span>
         {
             <span class="kw">if</span> <span class="ident">rule_removed</span> {
-                <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event</span>::<span class="ident">ClearCache</span>, <span class="ident">EventData</span>::<span class="ident">ClearCache</span>);
+                <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event::ClearCache</span>, <span class="ident">EventData::ClearCache</span>);
             }
         }
         <span class="kw">if</span> <span class="ident">sec</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;g&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">has_auto_build_role_links_enabled</span>() {
@@ -761,7 +761,7 @@
         }
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;incremental&quot;</span>)]</span>
         {
-            <span class="self">self</span>.<span class="ident">build_incremental_role_links</span>(<span class="ident">EventData</span>::<span class="ident">RemovePolicy</span>(
+            <span class="self">self</span>.<span class="ident">build_incremental_role_links</span>(<span class="ident">EventData::RemovePolicy</span>(
                 <span class="ident">sec</span>.<span class="ident">to_owned</span>(),
                 <span class="ident">ptype</span>.<span class="ident">to_owned</span>(),
                 <span class="ident">rule</span>,
@@ -807,7 +807,7 @@
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;watcher&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;logging&quot;</span>))]</span>
         {
             <span class="kw">let</span> <span class="ident">event_data</span> <span class="op">=</span>
-                <span class="ident">EventData</span>::<span class="ident">RemovePolicies</span>(<span class="ident">sec</span>.<span class="ident">to_owned</span>(), <span class="ident">ptype</span>.<span class="ident">to_owned</span>(), {
+                <span class="ident">EventData::RemovePolicies</span>(<span class="ident">sec</span>.<span class="ident">to_owned</span>(), <span class="ident">ptype</span>.<span class="ident">to_owned</span>(), {
                     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;incremental&quot;</span>)]</span>
                     {
                         <span class="ident">rules</span>.<span class="ident">clone</span>()
@@ -820,20 +820,20 @@
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;watcher&quot;</span>)]</span>
             {
                 <span class="kw">if</span> <span class="ident">rules_removed</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">has_auto_notify_watcher_enabled</span>() {
-                    <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event</span>::<span class="ident">PolicyChange</span>, <span class="ident">event_data</span>);
+                    <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event::PolicyChange</span>, <span class="ident">event_data</span>);
                 }
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;watcher&quot;</span>))]</span>
             {
                 <span class="kw">if</span> <span class="ident">rules_removed</span> {
-                    <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event</span>::<span class="ident">PolicyChange</span>, <span class="ident">event_data</span>);
+                    <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event::PolicyChange</span>, <span class="ident">event_data</span>);
                 }
             }
         }
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cached&quot;</span>)]</span>
         {
             <span class="kw">if</span> <span class="ident">rules_removed</span> {
-                <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event</span>::<span class="ident">ClearCache</span>, <span class="ident">EventData</span>::<span class="ident">ClearCache</span>);
+                <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event::ClearCache</span>, <span class="ident">EventData::ClearCache</span>);
             }
         }
         <span class="kw">if</span> <span class="ident">sec</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;g&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">has_auto_build_role_links_enabled</span>() {
@@ -845,7 +845,7 @@
         }
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;incremental&quot;</span>)]</span>
         {
-            <span class="self">self</span>.<span class="ident">build_incremental_role_links</span>(<span class="ident">EventData</span>::<span class="ident">RemovePolicies</span>(
+            <span class="self">self</span>.<span class="ident">build_incremental_role_links</span>(<span class="ident">EventData::RemovePolicies</span>(
                 <span class="ident">sec</span>.<span class="ident">to_owned</span>(),
                 <span class="ident">ptype</span>.<span class="ident">to_owned</span>(),
                 <span class="ident">rules</span>,
@@ -873,7 +873,7 @@
                 )
                 .<span class="kw">await</span><span class="question-mark">?</span>
         {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="bool-val">false</span>, <span class="macro">vec</span><span class="macro">!</span>[]));
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="bool-val">false</span>, <span class="macro">vec!</span>[]));
         }
 
         <span class="kw">let</span> (<span class="ident">rules_removed</span>, <span class="ident">rules</span>) <span class="op">=</span> <span class="self">self</span>
@@ -881,7 +881,7 @@
             .<span class="ident">remove_filtered_policy</span>(<span class="ident">sec</span>, <span class="ident">ptype</span>, <span class="ident">field_index</span>, <span class="ident">field_values</span>);
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;watcher&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;logging&quot;</span>))]</span>
         {
-            <span class="kw">let</span> <span class="ident">event_data</span> <span class="op">=</span> <span class="ident">EventData</span>::<span class="ident">RemoveFilteredPolicy</span>(
+            <span class="kw">let</span> <span class="ident">event_data</span> <span class="op">=</span> <span class="ident">EventData::RemoveFilteredPolicy</span>(
                 <span class="ident">sec</span>.<span class="ident">to_owned</span>(),
                 <span class="ident">ptype</span>.<span class="ident">to_owned</span>(),
                 <span class="ident">rules</span>.<span class="ident">clone</span>(),
@@ -889,20 +889,20 @@
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;watcher&quot;</span>)]</span>
             {
                 <span class="kw">if</span> <span class="ident">rules_removed</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">has_auto_notify_watcher_enabled</span>() {
-                    <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event</span>::<span class="ident">PolicyChange</span>, <span class="ident">event_data</span>);
+                    <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event::PolicyChange</span>, <span class="ident">event_data</span>);
                 }
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;watcher&quot;</span>))]</span>
             {
                 <span class="kw">if</span> <span class="ident">rules_removed</span> {
-                    <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event</span>::<span class="ident">PolicyChange</span>, <span class="ident">event_data</span>);
+                    <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event::PolicyChange</span>, <span class="ident">event_data</span>);
                 }
             }
         }
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cached&quot;</span>)]</span>
         {
             <span class="kw">if</span> <span class="ident">rules_removed</span> {
-                <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event</span>::<span class="ident">ClearCache</span>, <span class="ident">EventData</span>::<span class="ident">ClearCache</span>);
+                <span class="self">self</span>.<span class="ident">emit</span>(<span class="ident">Event::ClearCache</span>, <span class="ident">EventData::ClearCache</span>);
             }
         }
         <span class="kw">if</span> <span class="ident">sec</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;g&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">has_auto_build_role_links_enabled</span>() {
@@ -915,7 +915,7 @@
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;incremental&quot;</span>)]</span>
         {
             <span class="self">self</span>.<span class="ident">build_incremental_role_links</span>(
-                <span class="ident">EventData</span>::<span class="ident">RemoveFilteredPolicy</span>(
+                <span class="ident">EventData::RemoveFilteredPolicy</span>(
                     <span class="ident">sec</span>.<span class="ident">to_owned</span>(),
                     <span class="ident">ptype</span>.<span class="ident">to_owned</span>(),
                     <span class="ident">rules</span>.<span class="ident">clone</span>(),
@@ -927,5 +927,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="casbin" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="casbin" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>
