@@ -1,3 +1,3 @@
 (function() {var implementors = {};
-implementors["casbin"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.59.0/core/hash/trait.Hash.html\" title=\"trait core::hash::Hash\">Hash</a> for <a class=\"enum\" href=\"casbin/prelude/enum.Event.html\" title=\"enum casbin::prelude::Event\">Event</a>","synthetic":false,"types":["casbin::emitter::Event"]}];
+implementors["casbin"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.60.0/core/hash/trait.Hash.html\" title=\"trait core::hash::Hash\">Hash</a> for <a class=\"enum\" href=\"casbin/prelude/enum.Event.html\" title=\"enum casbin::prelude::Event\">Event</a>","synthetic":false,"types":["casbin::emitter::Event"]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
