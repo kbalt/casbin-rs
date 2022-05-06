@@ -135,26 +135,24 @@ impl CoreApi for CachedEnforcer {
         self.enforcer.get_mut_adapter()
     }
 
-    #[cfg(feature = "watcher")]
-    #[inline]
-    fn set_watcher(&mut self, w: Box<dyn Watcher>) {
-        self.enforcer.set_watcher(w);
-    }
-
-    #[cfg(feature = "watcher")]
-    #[inline]
-    fn get_watcher(&self) -> Option<&dyn Watcher> {
-        self.enforcer.get_watcher()
-    }
-
-    #[cfg(feature = "watcher")]
-    #[inline]
-    fn get_mut_watcher(&mut self) -> Option<&mut dyn Watcher> {
-        self.enforcer.get_mut_watcher()
-    }
     #[inline]
     fn get_role_manager(&self) -> Arc<RwLock<dyn RoleManager>> {
         self.enforcer.get_role_manager()
+    }
+
+    #[inline]
+    fn get_role_managers(
+        &self,
+    ) -> Box<dyn Iterator<Item = Arc<RwLock<dyn RoleManager>>> + '_> {
+        self.enforcer.get_role_managers()
+    }
+
+    #[inline]
+    fn get_role_manager_for_ptype(
+        &self,
+        ptype: &str,
+    ) -> Option<Arc<RwLock<dyn RoleManager>>> {
+        self.enforcer.get_role_manager_for_ptype(ptype)
     }
 
     #[inline]
@@ -169,27 +167,20 @@ impl CoreApi for CachedEnforcer {
     async fn set_model<M: TryIntoModel>(&mut self, m: M) -> Result<()> {
         self.enforcer.set_model(m).await
     }
-
     #[inline]
     async fn set_adapter<A: TryIntoAdapter>(&mut self, a: A) -> Result<()> {
         self.enforcer.set_adapter(a).await
     }
 
-    #[cfg(feature = "logging")]
-    #[inline]
-    fn get_logger(&self) -> &dyn Logger {
-        self.enforcer.get_logger()
-    }
-
-    #[cfg(feature = "logging")]
-    #[inline]
-    fn set_logger(&mut self, l: Box<dyn Logger>) {
-        self.enforcer.set_logger(l);
-    }
-
     #[inline]
     fn set_effector(&mut self, e: Box<dyn Effector>) {
         self.enforcer.set_effector(e);
+    }
+
+    /// CachedEnforcer should use `enforce_mut` instead so that
+    /// enforce result can be saved to cache
+    fn enforce<ARGS: EnforceArgs>(&self, rvals: ARGS) -> Result<bool> {
+        self.enforcer.enforce(rvals)
     }
 
     fn enforce_mut<ARGS: EnforceArgs>(&mut self, rvals: ARGS) -> Result<bool> {
@@ -224,12 +215,6 @@ impl CoreApi for CachedEnforcer {
         }
 
         Ok(authorized)
-    }
-
-    /// CachedEnforcer should use `enforce_mut` instead so that
-    /// enforce result can be saved to cache
-    fn enforce<ARGS: EnforceArgs>(&self, rvals: ARGS) -> Result<bool> {
-        self.enforcer.enforce(rvals)
     }
 
     #[inline]
@@ -273,10 +258,9 @@ impl CoreApi for CachedEnforcer {
         self.enforcer.clear_policy().await
     }
 
-    #[cfg(feature = "logging")]
     #[inline]
-    fn enable_log(&mut self, enabled: bool) {
-        self.enforcer.enable_log(enabled);
+    fn enable_auto_save(&mut self, auto_save: bool) {
+        self.enforcer.enable_auto_save(auto_save);
     }
 
     #[inline]
@@ -285,14 +269,55 @@ impl CoreApi for CachedEnforcer {
     }
 
     #[inline]
-    fn enable_auto_save(&mut self, auto_save: bool) {
-        self.enforcer.enable_auto_save(auto_save);
-    }
-
-    #[inline]
     fn enable_auto_build_role_links(&mut self, auto_build_role_links: bool) {
         self.enforcer
             .enable_auto_build_role_links(auto_build_role_links);
+    }
+
+    #[inline]
+    fn has_auto_save_enabled(&self) -> bool {
+        self.enforcer.has_auto_save_enabled()
+    }
+
+    #[inline]
+    fn has_auto_build_role_links_enabled(&self) -> bool {
+        self.enforcer.has_auto_build_role_links_enabled()
+    }
+
+    #[cfg(feature = "watcher")]
+    #[inline]
+    fn set_watcher(&mut self, w: Box<dyn Watcher>) {
+        self.enforcer.set_watcher(w);
+    }
+
+    #[cfg(feature = "watcher")]
+    #[inline]
+    fn get_watcher(&self) -> Option<&dyn Watcher> {
+        self.enforcer.get_watcher()
+    }
+
+    #[cfg(feature = "watcher")]
+    #[inline]
+    fn get_mut_watcher(&mut self) -> Option<&mut dyn Watcher> {
+        self.enforcer.get_mut_watcher()
+    }
+
+    #[cfg(feature = "logging")]
+    #[inline]
+    fn get_logger(&self) -> &dyn Logger {
+        self.enforcer.get_logger()
+    }
+
+    #[cfg(feature = "logging")]
+    #[inline]
+    fn set_logger(&mut self, l: Box<dyn Logger>) {
+        self.enforcer.set_logger(l);
+    }
+
+    #[cfg(feature = "logging")]
+    #[inline]
+    fn enable_log(&mut self, enabled: bool) {
+        self.enforcer.enable_log(enabled);
     }
 
     #[cfg(feature = "watcher")]
@@ -302,20 +327,10 @@ impl CoreApi for CachedEnforcer {
             .enable_auto_notify_watcher(auto_notify_watcher);
     }
 
-    #[inline]
-    fn has_auto_save_enabled(&self) -> bool {
-        self.enforcer.has_auto_save_enabled()
-    }
-
     #[cfg(feature = "watcher")]
     #[inline]
     fn has_auto_notify_watcher_enabled(&self) -> bool {
         self.enforcer.has_auto_notify_watcher_enabled()
-    }
-
-    #[inline]
-    fn has_auto_build_role_links_enabled(&self) -> bool {
-        self.enforcer.has_auto_build_role_links_enabled()
     }
 }
 

@@ -1,11 +1,20 @@
-use crate::{MgmtApi, Result};
-
+use crate::{MatchingFn, MgmtApi, Result};
 use async_trait::async_trait;
-
 use std::collections::HashSet;
 
 #[async_trait]
 pub trait RbacApi: MgmtApi {
+    fn add_named_matching_fn(
+        &mut self,
+        ptype: &str,
+        role_matching_fn: MatchingFn,
+    ) -> bool;
+
+    fn add_domain_matching_fn(
+        &mut self,
+        ptype: &str,
+        domain_matching_fn: MatchingFn,
+    ) -> bool;
     async fn add_permission_for_user(
         &mut self,
         user: &str,
@@ -112,6 +121,33 @@ impl<T> RbacApi for T
 where
     T: MgmtApi,
 {
+    fn add_named_matching_fn(
+        &mut self,
+        ptype: &str,
+        role_matching_fn: MatchingFn,
+    ) -> bool {
+        if let Some(rm) = self.get_role_manager_for_ptype(ptype) {
+            rm.write().set_role_matching_fn(role_matching_fn);
+            return true;
+        }
+
+        false
+    }
+
+    fn add_domain_matching_fn(
+        &mut self,
+        ptype: &str,
+
+        domain_matching_fn: MatchingFn,
+    ) -> bool {
+        if let Some(rm) = self.get_role_manager_for_ptype(ptype) {
+            rm.write().set_domain_matching_fn(domain_matching_fn);
+            return true;
+        }
+
+        false
+    }
+
     async fn add_permission_for_user(
         &mut self,
         user: &str,
@@ -319,14 +355,17 @@ where
         domain: Option<&str>,
     ) -> Vec<String> {
         let mut res: HashSet<String> = HashSet::new();
-        let mut q: Vec<String> = vec![name.to_owned()];
-        while !q.is_empty() {
-            let name = q.swap_remove(0);
-            let roles =
-                self.get_role_manager().write().get_roles(&name, domain);
-            for r in roles.into_iter() {
-                if res.insert(r.to_owned()) {
-                    q.push(r);
+        for rm in self.get_role_managers() {
+            let rm = rm.read();
+
+            let mut q: Vec<String> = vec![name.to_owned()];
+            while !q.is_empty() {
+                let name = q.swap_remove(0);
+                let roles = rm.get_roles(&name, domain);
+                for r in roles.into_iter() {
+                    if r != name && res.insert(r.to_owned()) {
+                        q.push(r);
+                    }
                 }
             }
         }
@@ -1086,11 +1125,13 @@ mod tests {
         .await
         .unwrap();
 
+        use crate::model::key_match;
         use crate::model::key_match2;
 
         e.get_role_manager()
             .write()
-            .matching_fn(Some(key_match2), None);
+            .set_role_matching_fn(key_match2);
+        e.add_named_matching_fn("g2", key_match2);
 
         assert!(e.enforce(("alice", "/pen/1", "GET")).unwrap());
         assert!(e.enforce(("alice", "/pen2/1", "GET")).unwrap());
@@ -1278,6 +1319,44 @@ mod tests {
                 ])
                 .await
             )
+        );
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    #[cfg_attr(
+        all(feature = "runtime-async-std", not(target_arch = "wasm32")),
+        async_std::test
+    )]
+    #[cfg_attr(
+        all(feature = "runtime-tokio", not(target_arch = "wasm32")),
+        tokio::test
+    )]
+    async fn test_no_cross_contamination_of_g() {
+        let mut e = Enforcer::new(
+            "examples/rbac_with_resource_roles_and_matching_model.conf",
+            "examples/rbac_with_resource_roles_and_matching_policy.csv",
+        )
+        .await
+        .unwrap();
+
+        use crate::model::key_match;
+
+        e.get_role_manager()
+            .write()
+            .set_role_matching_fn(key_match);
+        e.build_role_links().unwrap();
+
+        assert_eq!(
+            vec!["data_group_admin"],
+            sort_unstable(e.get_implicit_roles_for_user("alice", None))
+        );
+        assert_eq!(
+            vec!["*", "alice", "data_group_admin"],
+            sort_unstable(e.get_implicit_roles_for_user("bob", None))
+        );
+        assert_eq!(
+            Vec::<String>::new(),
+            sort_unstable(e.get_implicit_roles_for_user("eve", None))
         );
     }
 }

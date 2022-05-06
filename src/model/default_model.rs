@@ -157,10 +157,11 @@ impl Model for DefaultModel {
 
     fn build_role_links(
         &mut self,
+        ptype: &str,
         rm: Arc<RwLock<dyn RoleManager>>,
     ) -> Result<()> {
         if let Some(asts) = self.model.get_mut("g") {
-            for ast in asts.values_mut() {
+            if let Some(ast) = asts.get_mut(ptype) {
                 ast.build_role_links(Arc::clone(&rm))?;
             }
         }
@@ -170,10 +171,10 @@ impl Model for DefaultModel {
     #[cfg(feature = "incremental")]
     fn build_incremental_role_links(
         &mut self,
-        rm: Arc<RwLock<dyn RoleManager>>,
+        rm: &HashMap<String, Arc<RwLock<dyn RoleManager>>>,
         d: EventData,
     ) -> Result<()> {
-        let ast = match d {
+        let ast: Option<(&str, &mut Assertion)> = match d {
             EventData::AddPolicy(ref sec, ref ptype, _)
             | EventData::AddPolicies(ref sec, ref ptype, _)
             | EventData::RemovePolicy(ref sec, ref ptype, _)
@@ -181,15 +182,19 @@ impl Model for DefaultModel {
             | EventData::RemoveFilteredPolicy(ref sec, ref ptype, _)
                 if sec == "g" =>
             {
-                self.model
-                    .get_mut(sec)
-                    .and_then(|ast_map| ast_map.get_mut(ptype))
+                self.model.get_mut(sec).and_then(|ast_map| {
+                    ast_map
+                        .get_mut(ptype)
+                        .and_then(|x| Some((ptype.as_ref(), x)))
+                })
             }
             _ => None,
         };
 
-        if let Some(ast) = ast {
-            ast.build_incremental_role_links(rm, d)?;
+        if let Some((ptype, ast)) = ast {
+            if let Some(rm) = rm.get(ptype) {
+                ast.build_incremental_role_links(rm.clone(), d)?;
+            }
         }
 
         Ok(())
