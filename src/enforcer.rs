@@ -9,7 +9,6 @@ use crate::{
     management_api::MgmtApi,
     model::{FunctionMap, Model},
     rbac::{DefaultRoleManager, RoleManager},
-    register_g_function,
     util::{escape_assertion, escape_eval},
     Result,
 };
@@ -60,7 +59,7 @@ pub struct Enforcer {
     adapter: Box<dyn Adapter>,
     fm: FunctionMap,
     eft: Box<dyn Effector>,
-    rm: Arc<RwLock<dyn RoleManager>>,
+    rm_map: HashMap<String, Arc<RwLock<dyn RoleManager>>>,
     enabled: bool,
     auto_save: bool,
     auto_build_role_links: bool,
@@ -159,6 +158,7 @@ impl Enforcer {
                 )
                 .into());
             }
+
             for (ptoken, pval) in p_ast.tokens.iter().zip(pvals.iter()) {
                 scope.push_constant(ptoken, pval.to_owned());
             }
@@ -201,7 +201,32 @@ impl Enforcer {
     pub(crate) fn register_g_functions(&mut self) -> Result<()> {
         if let Some(ast_map) = self.model.get_model().get("g") {
             for (fname, ast) in ast_map {
-                register_g_function!(self, fname, ast);
+                let rm = Arc::clone(&self.rm_map[fname]);
+                let count = ast.value.matches('_').count();
+
+                if count == 2 {
+                    self.engine.register_fn(
+                        fname,
+                        move |arg1: ImmutableString, arg2: ImmutableString| {
+                            rm.write().has_link(&arg1, &arg2, None)
+                        },
+                    );
+                } else if count == 3 {
+                    self.engine.register_fn(
+                        fname,
+                        move |arg1: ImmutableString,
+                              arg2: ImmutableString,
+                              arg3: ImmutableString| {
+                            rm.write().has_link(&arg1, &arg2, Some(&arg3))
+                        },
+                    );
+                } else {
+                    return Err(ModelError::P(
+                        r#"the number of "_" in role definition should be at least 2"#
+                            .to_owned(),
+                    )
+                    .into());
+                }
             }
         }
 
@@ -219,7 +244,16 @@ impl CoreApi for Enforcer {
         let adapter = a.try_into_adapter().await?;
         let fm = FunctionMap::default();
         let eft = Box::new(DefaultEffector::default());
-        let rm = Arc::new(RwLock::new(DefaultRoleManager::new(10)));
+        let mut rm_map: HashMap<_, Arc<RwLock<dyn RoleManager>>> =
+            HashMap::new();
+        if let Some(ast_map) = model.get_model().get("g") {
+            for (ptype, _) in ast_map {
+                rm_map.insert(
+                    ptype.to_owned(),
+                    Arc::new(RwLock::new(DefaultRoleManager::new(10))),
+                );
+            }
+        }
 
         let mut engine = Engine::new_raw();
 
@@ -234,7 +268,7 @@ impl CoreApi for Enforcer {
             adapter,
             fm,
             eft,
-            rm,
+            rm_map,
             enabled: true,
             auto_save: true,
             auto_build_role_links: true,
@@ -336,7 +370,21 @@ impl CoreApi for Enforcer {
 
     #[inline]
     fn get_role_manager(&self) -> Arc<RwLock<dyn RoleManager>> {
-        Arc::clone(&self.rm)
+        Arc::clone(&self.rm_map["g"])
+    }
+    #[inline]
+    fn get_role_managers(
+        &self,
+    ) -> Box<dyn Iterator<Item = Arc<RwLock<dyn RoleManager>>> + '_> {
+        Box::new(self.rm_map.values().cloned())
+    }
+
+    #[inline]
+    fn get_role_manager_for_ptype(
+        &self,
+        ptype: &str,
+    ) -> Option<Arc<RwLock<dyn RoleManager>>> {
+        self.rm_map.get(ptype).cloned()
     }
 
     #[inline]
@@ -344,7 +392,8 @@ impl CoreApi for Enforcer {
         &mut self,
         rm: Arc<RwLock<dyn RoleManager>>,
     ) -> Result<()> {
-        self.rm = rm;
+        self.rm_map.insert("g".into(), rm);
+
         if self.auto_build_role_links {
             self.build_role_links()?;
         }
@@ -431,16 +480,17 @@ impl CoreApi for Enforcer {
     }
 
     fn build_role_links(&mut self) -> Result<()> {
-        self.rm.write().clear();
-        self.model.build_role_links(Arc::clone(&self.rm))?;
+        for (ptype, rm) in &mut self.rm_map {
+            rm.write().clear();
+            self.model.build_role_links(ptype, Arc::clone(rm))?;
+        }
 
         Ok(())
     }
 
     #[cfg(feature = "incremental")]
     fn build_incremental_role_links(&mut self, d: EventData) -> Result<()> {
-        self.model
-            .build_incremental_role_links(Arc::clone(&self.rm), d)?;
+        self.model.build_incremental_role_links(&self.rm_map, d)?;
 
         Ok(())
     }

@@ -40,6 +40,7 @@ pub trait CoreApi: Send + Sync {
     fn get_model(&self) -> &dyn Model;
     fn get_mut_model(&mut self) -> &mut dyn Model;
     fn get_adapter(&self) -> &dyn Adapter;
+
     fn get_mut_adapter(&mut self) -> &mut dyn Adapter;
     #[cfg(feature = "watcher")]
     fn set_watcher(&mut self, w: Box<dyn Watcher>);
@@ -48,6 +49,13 @@ pub trait CoreApi: Send + Sync {
     #[cfg(feature = "watcher")]
     fn get_mut_watcher(&mut self) -> Option<&mut dyn Watcher>;
     fn get_role_manager(&self) -> Arc<RwLock<dyn RoleManager>>;
+    fn get_role_managers(
+        &self,
+    ) -> Box<dyn Iterator<Item = Arc<RwLock<dyn RoleManager>>> + '_>;
+    fn get_role_manager_for_ptype(
+        &self,
+        ptype: &str,
+    ) -> Option<Arc<RwLock<dyn RoleManager>>>;
     fn set_role_manager(
         &mut self,
         rm: Arc<RwLock<dyn RoleManager>>,

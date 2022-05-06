@@ -220,6 +220,14 @@ impl RoleManager for DefaultRoleManager {
         self.role_matching_fn = role_matching_fn;
     }
 
+    fn set_role_matching_fn(&mut self, role_matching_fn: MatchingFn) {
+        self.role_matching_fn = Some(role_matching_fn);
+    }
+
+    fn set_domain_matching_fn(&mut self, domain_matching_fn: MatchingFn) {
+        self.domain_matching_fn = Some(domain_matching_fn);
+    }
+
     fn delete_link(
         &mut self,
         name1: &str,
@@ -332,7 +340,7 @@ impl RoleManager for DefaultRoleManager {
         res
     }
 
-    fn get_roles(&mut self, name: &str, domain: Option<&str>) -> Vec<String> {
+    fn get_roles(&self, name: &str, domain: Option<&str>) -> Vec<String> {
         let matched_domains = self.matched_domains(domain);
 
         let res = if let Some(role_matching_fn) = self.role_matching_fn {
