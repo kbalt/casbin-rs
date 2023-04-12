@@ -260,12 +260,7 @@ impl RoleManager for DefaultRoleManager {
         Ok(())
     }
 
-    fn has_link(
-        &mut self,
-        name1: &str,
-        name2: &str,
-        domain: Option<&str>,
-    ) -> bool {
+    fn has_link(&self, name1: &str, name2: &str, domain: Option<&str>) -> bool {
         if name1 == name2 {
             return true;
         }
