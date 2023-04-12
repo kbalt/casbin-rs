@@ -208,7 +208,7 @@ impl Enforcer {
                     self.engine.register_fn(
                         fname,
                         move |arg1: ImmutableString, arg2: ImmutableString| {
-                            rm.write().has_link(&arg1, &arg2, None)
+                            rm.read().has_link(&arg1, &arg2, None)
                         },
                     );
                 } else if count == 3 {
@@ -217,7 +217,7 @@ impl Enforcer {
                         move |arg1: ImmutableString,
                               arg2: ImmutableString,
                               arg3: ImmutableString| {
-                            rm.write().has_link(&arg1, &arg2, Some(&arg3))
+                            rm.read().has_link(&arg1, &arg2, Some(&arg3))
                         },
                     );
                 } else {

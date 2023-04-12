@@ -1341,9 +1341,7 @@ mod tests {
 
         use crate::model::key_match;
 
-        e.get_role_manager()
-            .write()
-            .set_role_matching_fn(key_match);
+        e.get_role_manager().write().set_role_matching_fn(key_match);
         e.build_role_links().unwrap();
 
         assert_eq!(
