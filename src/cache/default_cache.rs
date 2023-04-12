@@ -1,15 +1,13 @@
 use crate::cache::Cache;
-
-use lru::LruCache;
-
-use std::{borrow::Cow, hash::Hash};
+use mini_moka::sync::Cache as MokaCache;
+use std::hash::Hash;
 
 pub struct DefaultCache<K, V>
 where
     K: Eq + Hash + Send + Sync + 'static,
     V: Send + Sync + Clone + 'static,
 {
-    cache: LruCache<K, V>,
+    cache: MokaCache<K, V>,
 }
 
 impl<K, V> DefaultCache<K, V>
@@ -19,7 +17,7 @@ where
 {
     pub fn new(cap: usize) -> DefaultCache<K, V> {
         DefaultCache {
-            cache: LruCache::new(cap),
+            cache: MokaCache::builder().max_capacity(cap as u64).build(),
         }
     }
 }
@@ -29,27 +27,20 @@ where
     K: Eq + Hash + Send + Sync + 'static,
     V: Send + Sync + Clone + 'static,
 {
-    fn set_capacity(&mut self, cap: usize) {
-        self.cache.resize(cap);
+    fn get(&self, k: &K) -> Option<V> {
+        self.cache.get(k)
     }
 
-    fn get(&mut self, k: &K) -> Option<Cow<'_, V>> {
-        self.cache.get_mut(k).map(|x| Cow::Borrowed(&*x))
+    fn has(&self, k: &K) -> bool {
+        self.cache.get(k).is_some()
     }
 
-    fn has(&mut self, k: &K) -> bool {
-        self.cache.contains(k)
+    fn set(&self, k: K, v: V) {
+        self.cache.insert(k, v);
     }
 
-    fn set(&mut self, k: K, v: V) {
-        if self.has(&k) {
-            self.cache.pop(&k);
-        }
-        self.cache.put(k, v);
-    }
-
-    fn clear(&mut self) {
-        self.cache.clear();
+    fn clear(&self) {
+        self.cache.invalidate_all();
     }
 }
 

@@ -63,7 +63,7 @@ impl CachedEnforcer {
         cache_key: u64,
     ) -> Result<(bool, bool, Option<Vec<usize>>)> {
         Ok(if let Some(authorized) = self.cache.get(&cache_key) {
-            (authorized.into_owned(), true, None)
+            (authorized, true, None)
         } else {
             let (authorized, indices) =
                 self.enforcer.private_enforce(&rvals)?;
@@ -341,10 +341,6 @@ impl CachedApi<u64, bool> for CachedEnforcer {
 
     fn set_cache(&mut self, cache: Box<dyn Cache<u64, bool>>) {
         self.cache = cache;
-    }
-
-    fn set_capacity(&mut self, cap: usize) {
-        self.cache.set_capacity(cap);
     }
 }
 
