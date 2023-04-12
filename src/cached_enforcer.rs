@@ -63,7 +63,7 @@ impl CachedEnforcer {
         cache_key: u64,
     ) -> Result<(bool, bool, Option<Vec<usize>>)> {
         Ok(if let Some(authorized) = self.cache.get(&cache_key) {
-            (authorized.into_owned(), true, None)
+            (authorized, true, None)
         } else {
             let (authorized, indices) =
                 self.enforcer.private_enforce(&rvals)?;
@@ -180,10 +180,6 @@ impl CoreApi for CachedEnforcer {
     /// CachedEnforcer should use `enforce_mut` instead so that
     /// enforce result can be saved to cache
     fn enforce<ARGS: EnforceArgs>(&self, rvals: ARGS) -> Result<bool> {
-        self.enforcer.enforce(rvals)
-    }
-
-    fn enforce_mut<ARGS: EnforceArgs>(&mut self, rvals: ARGS) -> Result<bool> {
         let cache_key = rvals.cache_key();
         let rvals = rvals.try_into_vec()?;
         #[allow(unused_variables)]
@@ -215,6 +211,11 @@ impl CoreApi for CachedEnforcer {
         }
 
         Ok(authorized)
+    }
+
+    #[inline]
+    fn enforce_mut<ARGS: EnforceArgs>(&mut self, rvals: ARGS) -> Result<bool> {
+        self.enforce(rvals)
     }
 
     #[inline]
@@ -341,10 +342,6 @@ impl CachedApi<u64, bool> for CachedEnforcer {
 
     fn set_cache(&mut self, cache: Box<dyn Cache<u64, bool>>) {
         self.cache = cache;
-    }
-
-    fn set_capacity(&mut self, cap: usize) {
-        self.cache.set_capacity(cap);
     }
 }
 
