@@ -34,6 +34,8 @@ use rhai::{
     Dynamic, Engine, EvalAltResult, ImmutableString, Scope,
 };
 
+use std::{cmp::max, collections::HashMap, mem::take, sync::Arc};
+
 def_package! {
     pub CasbinPackage(lib) {
         ArithmeticPackage::init(lib);
@@ -49,9 +51,7 @@ def_package! {
 
 static CASBIN_PACKAGE: Lazy<CasbinPackage> = Lazy::new(CasbinPackage::new);
 
-use std::{cmp::max, collections::HashMap, sync::Arc};
-
-type EventCallback = fn(&mut Enforcer, EventData);
+type EventCallback = Box<dyn FnMut(&mut Enforcer, EventData) + Send + Sync>;
 
 /// Enforcer is the main interface for authorization enforcement and policy management.
 pub struct Enforcer {
@@ -74,7 +74,11 @@ pub struct Enforcer {
 }
 
 impl EventEmitter<Event> for Enforcer {
-    fn on(&mut self, e: Event, f: fn(&mut Self, EventData)) {
+    fn on(
+        &mut self,
+        e: Event,
+        f: Box<dyn FnMut(&mut Self, EventData) + Send + Sync>,
+    ) {
         self.events.entry(e).or_insert_with(Vec::new).push(f)
     }
 
@@ -83,11 +87,15 @@ impl EventEmitter<Event> for Enforcer {
     }
 
     fn emit(&mut self, e: Event, d: EventData) {
-        if let Some(cbs) = self.events.get(&e) {
-            for cb in cbs.clone().iter() {
-                cb(self, d.clone())
+        let mut events = take(&mut self.events);
+
+        if let Some(cbs) = events.get_mut(&e) {
+            for cb in cbs {
+                cb(self, d.clone());
             }
         }
+
+        self.events = events;
     }
 }
 
@@ -283,7 +291,7 @@ impl CoreApi for Enforcer {
         };
 
         #[cfg(any(feature = "logging", feature = "watcher"))]
-        e.on(Event::PolicyChange, notify_logger_and_watcher);
+        e.on(Event::PolicyChange, Box::new(notify_logger_and_watcher));
 
         e.register_g_functions()?;
 
@@ -588,7 +596,7 @@ impl CoreApi for Enforcer {
         if !auto_notify_watcher {
             self.off(Event::PolicyChange);
         } else {
-            self.on(Event::PolicyChange, notify_logger_and_watcher);
+            self.on(Event::PolicyChange, Box::new(notify_logger_and_watcher));
         }
 
         self.auto_notify_watcher = auto_notify_watcher;

@@ -28,9 +28,10 @@ use async_trait::async_trait;
 use parking_lot::RwLock;
 use rhai::{Dynamic, ImmutableString};
 
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, mem::take, sync::Arc};
 
-type EventCallback = fn(&mut CachedEnforcer, EventData);
+type EventCallback =
+    Box<dyn FnMut(&mut CachedEnforcer, EventData) + Send + Sync>;
 
 pub struct CachedEnforcer {
     enforcer: Enforcer,
@@ -39,7 +40,11 @@ pub struct CachedEnforcer {
 }
 
 impl EventEmitter<Event> for CachedEnforcer {
-    fn on(&mut self, e: Event, f: fn(&mut Self, EventData)) {
+    fn on(
+        &mut self,
+        e: Event,
+        f: Box<dyn FnMut(&mut Self, EventData) + Send + Sync>,
+    ) {
         self.events.entry(e).or_insert_with(Vec::new).push(f)
     }
 
@@ -48,11 +53,15 @@ impl EventEmitter<Event> for CachedEnforcer {
     }
 
     fn emit(&mut self, e: Event, d: EventData) {
-        if let Some(cbs) = self.events.get(&e) {
-            for cb in cbs.clone().iter() {
+        let mut events = take(&mut self.events);
+
+        if let Some(cbs) = events.get_mut(&e) {
+            for cb in cbs {
                 cb(self, d.clone())
             }
         }
+
+        self.events = events;
     }
 }
 
@@ -88,10 +97,11 @@ impl CoreApi for CachedEnforcer {
             events: HashMap::new(),
         };
 
-        cached_enforcer.on(Event::ClearCache, clear_cache);
+        cached_enforcer.on(Event::ClearCache, Box::new(clear_cache));
 
         #[cfg(any(feature = "logging", feature = "watcher"))]
-        cached_enforcer.on(Event::PolicyChange, notify_logger_and_watcher);
+        cached_enforcer
+            .on(Event::PolicyChange, Box::new(notify_logger_and_watcher));
 
         Ok(cached_enforcer)
     }
